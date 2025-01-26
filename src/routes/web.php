@@ -19,6 +19,3 @@ Route::get('/', [DebateController::class, 'home']);
 
 // 議論画面
 Route::get('/debate', [DebateController::class, 'debate']);
-
-// AI応答API
-Route::post('/debate/ai-response', [DebateController::class, 'aiResponse']);

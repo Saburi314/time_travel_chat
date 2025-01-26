@@ -10,6 +10,7 @@
     <input type="text" id="user-input" class="form-control me-2" placeholder="メッセージを入力" required>
     <button type="submit" class="btn btn-success">送信</button>
 </form>
+<button id="reset-button" class="btn btn-danger">ディベートをリセットする</button>
 @endsection
 
 @section('styles')
