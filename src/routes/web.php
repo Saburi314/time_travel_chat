@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DebateController;
+use App\Http\Controllers\Api\DebateApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +15,16 @@ use App\Http\Controllers\DebateController;
 */
 
 // ホーム画面
-Route::get('/', [DebateController::class, 'home']);
+Route::get('/', function () {
+    return view('home');
+});
 
 // 議論画面
-Route::get('/debate', [DebateController::class, 'debate']);
+Route::get('/debate', function () {
+    return view('debate');
+});
+
+// APIルート
+Route::post('/ai-response', [DebateApiController::class, 'getAiResponse'])->middleware('web');
+Route::get('/get-chat-history', [DebateApiController::class, 'getChatHistory'])->middleware('web');
+Route::post('/reset-chat', [DebateApiController::class, 'resetChatHistory'])->middleware('web');

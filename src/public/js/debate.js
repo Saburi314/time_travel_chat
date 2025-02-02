@@ -1,77 +1,57 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    const tokenElement = document.querySelector('meta[name="csrf-token"]');
+    const token = tokenElement ? tokenElement.getAttribute('content') : '';
+
     const form = document.getElementById('chat-form');
     const input = document.getElementById('user-input');
     const chatArea = document.getElementById('chat-area');
-    const resetButton = document.getElementById('reset-button'); // リセットボタンの取得
+    const resetButton = document.getElementById('reset-button');
 
-    // メッセージ送信処理
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const userMessage = input.value.trim();
-        if (userMessage) {
-            addMessage('user', userMessage);
-            input.value = '';
-
-            try {
-                const response = await fetch('/api/ai-response', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: userMessage }),
-                });
-
-                const data = await response.json();
-                const aiMessage = data.response || 'エラーが発生しました。';
-                addMessage('ai', aiMessage);
-            } catch (error) {
-                console.error('エラー:', error);
-                addMessage('ai', 'エラーが発生しました。');
-            }
-        }
-    });
-
-    // リセットボタン処理
-    resetButton.addEventListener('click', async () => {
+    async function loadChatHistory() {
         try {
-            const response = await fetch('/api/reset-chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                chatArea.innerHTML = ''; // チャットエリアをクリア
-                alert('ディベートの内容をリセットしました。');
-            } else {
-                alert('ディベートの内容をリセット出来ませんでした。');
+            const response = await fetch('/get-chat-history', { method: 'GET', credentials: 'include' });
+            const data = await response.json();
+            if (data.history) {
+                data.history.forEach(({ role, content }) => addMessage(role, content));
             }
         } catch (error) {
-            console.error('リセットエラー:', error);
-            alert('サーバーエラーが発生しました。');
+            console.error('履歴取得エラー:', error);
+        }
+    }
+
+    await loadChatHistory();
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userMessage = input.value.trim();
+        if (!userMessage) return;
+
+        addMessage('user', userMessage);
+        input.value = '';
+
+        try {
+            const response = await fetch('/ai-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                credentials: 'include',
+                body: JSON.stringify({ message: userMessage })
+            });
+            const data = await response.json();
+            addMessage('assistant', data.response || 'エラーが発生しました。');
+        } catch (error) {
+            console.error('エラー:', error);
         }
     });
 
-    function addMessage(sender, message) {
-        const messageRow = document.createElement('div');
-        messageRow.classList.add('message-row', sender);
+    resetButton.addEventListener('click', async () => {
+        await fetch('/reset-chat', { method: 'POST', headers: { 'X-CSRF-TOKEN': token }, credentials: 'include' });
+        chatArea.innerHTML = '';
+    });
 
-        if (sender === 'ai') {
-            const aiIcon = document.createElement('img');
-            aiIcon.src = '/images/hiroyuki_icon.webp'; // アイコン画像のパス
-            aiIcon.alt = 'AIアイコン';
-            aiIcon.classList.add('ai-icon');
-            messageRow.appendChild(aiIcon);
-        }
-
-        const bubble = document.createElement('div');
-        bubble.classList.add('bubble', sender);
-        bubble.textContent = message;
-
-        messageRow.appendChild(bubble);
-        chatArea.appendChild(messageRow);
+    function addMessage(role, content) {
+        const messageDiv = document.createElement('div');
+        messageDiv.innerHTML = `<strong>${role}:</strong> ${content}`;
+        chatArea.appendChild(messageDiv);
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 });
