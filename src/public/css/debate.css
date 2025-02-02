@@ -84,3 +84,13 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.result-heading {
+    font-size: 18px;
+    font-weight: bold;
+    color: #d9534f; /* 赤系 */
+    padding: 10px;
+    background-color: #f2dede; /* 淡い赤背景 */
+    border-radius: 5px;
+    margin-bottom: 5px;
+}

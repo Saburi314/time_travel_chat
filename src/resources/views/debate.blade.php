@@ -7,7 +7,7 @@
     <!-- チャット内容がここに表示される -->
 </div>
 <form id="chat-form" class="d-flex">
-    <input type="text" id="user-input" class="form-control me-2" placeholder="メッセージを入力" required>
+    <textarea id="user-input" class="form-control me-2" placeholder="メッセージを入力" rows="3"></textarea>
     <button type="submit" class="btn btn-success">送信</button>
 </form>
 <button id="reset-button" class="btn btn-danger">ディベートをリセットする</button>
