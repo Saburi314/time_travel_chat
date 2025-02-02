@@ -1,123 +1,8 @@
-#chat-area {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-family: 'Arial', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    padding: 10px;
-    background-color: #f9f9f9;
+/* 🔹 チャット全体のコンテナ */
+p {
+    margin:0
 }
 
-.message-row {
-    display: flex;
-    align-items: flex-start;
-}
-
-.message-row.user {
-    justify-content: flex-end;
-}
-
-.message-row.ai {
-    justify-content: flex-start;
-}
-
-.bubble {
-    max-width: 70%;
-    padding: 10px 15px;
-    border-radius: 15px;
-    font-size: 14px;
-    position: relative;
-}
-
-.bubble.user {
-    background-color: #cce5ff;
-    color: #004085;
-    border-bottom-right-radius: 0;
-}
-
-.bubble.ai {
-    background-color: #e9ecef;
-    color: #495057;
-    border-bottom-left-radius: 0;
-}
-
-.bubble.ai::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -10px;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent #e9ecef transparent transparent;
-}
-
-.bubble.user::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -10px;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent transparent transparent #cce5ff;
-}
-
-.ai-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.loading-spinner {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border: 2px solid rgba(0, 0, 0, 0.3);
-    border-top: 2px solid #333;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 5px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.result-heading {
-    font-size: 18px;
-    font-weight: bold;
-    color: #d9534f; /* 赤系 */
-    padding: 10px;
-    background-color: #f2dede; /* 淡い赤背景 */
-    border-radius: 5px;
-    margin-bottom: 5px;
-}
-
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 500px; /* 必要に応じて調整 */
-}
-
-#chat-area {
-    flex: 1;
-    overflow-y: auto;
-    background-color: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-.chat-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding-top: 10px;
-}
-
-/* 🔹 チャットエリア全体 */
 .chat-container {
     display: flex;
     flex-direction: column;
@@ -133,6 +18,103 @@
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* 🔹 メッセージ行の配置 */
+.message-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px; /* 吹き出し間の間隔を統一 */
+}
+
+/* 🔹 ユーザー側のメッセージ */
+.message-row.user {
+    justify-content: flex-end;
+}
+
+.message-row.user .bubble {
+    background-color: #cce5ff;
+    color: #004085;
+    border-bottom-right-radius: 0;
+}
+
+/* 🔹 AI側のメッセージ */
+.message-row.ai {
+    justify-content: flex-start;
+}
+
+.message-row.ai .bubble {
+    background-color: #e9ecef;
+    color: #495057;
+    border-bottom-left-radius: 0;
+}
+
+/* 🔹 メッセージの吹き出し */
+.bubble {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    position: relative;
+}
+
+/* 🔹 AIメッセージの吹き出し矢印 */
+.bubble.ai::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent #e9ecef transparent transparent;
+}
+
+/* 🔹 ユーザーメッセージの吹き出し矢印 */
+.bubble.user::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent transparent #cce5ff;
+}
+
+/* 🔹 AIのアイコン */
+.ai-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-image: url('/images/hiroyuki_icon.webp');
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+/* 🔹 結果発表の見出し */
+.result-heading {
+    font-size: 18px;
+    font-weight: bold;
+    color: #d9534f;
+    padding: 10px;
+    background-color: #f2dede;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* 🔹 リセット時のメッセージ（AIの記憶リセット） */
+.reset-message {
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #5bc0de;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 15px 0; /* 余白を増やして見やすくする */
 }
 
 /* 🔹 入力エリアとボタン */
@@ -172,6 +154,23 @@
 .btn-danger {
     flex: 1;
     margin-left: 5px;
+}
+
+/* 🔹 読み込み中のスピナー */
+.loading-spinner {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-top: 2px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 5px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* 🔹 スマホ向け調整 */
