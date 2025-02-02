@@ -12,6 +12,14 @@ class ChatHistory extends Model
     protected $fillable = ['session_id', 'messages'];
 
     protected $casts = [
-        'messages' => 'array', // ✅ JSONを配列として自動変換
+        'messages' => 'json', // ✅ JSONデータを自動的にキャスト
     ];
+
+    /**
+     * 🔹 セッションIDに基づいて履歴を取得
+     */
+    public static function getHistoryBySession($sessionId)
+    {
+        return self::where('session_id', $sessionId)->first();
+    }
 }

@@ -106,14 +106,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             'user': 'あなた',
             'assistant': 'ひろゆき'
         };
+        const displayRole = roleMap[role] || role;
         const roleClass = role === 'user' ? 'user' : 'ai';
 
+        //  メッセージ全体のコンテナ
         const messageRow = document.createElement('div');
         messageRow.classList.add('message-row', roleClass);
 
+        //  AIのときだけアイコンを表示
+        if (role === 'assistant') {
+            const icon = document.createElement('img');
+            icon.classList.add('ai-icon');
+            icon.src = '/images/hiroyuki_icon.webp';
+            icon.alt = 'ひろゆき';
+            messageRow.appendChild(icon);
+        }
+
+        //  メッセージ吹き出し
         const messageBubble = document.createElement('div');
         messageBubble.classList.add('bubble', roleClass);
-        messageBubble.textContent = content;
+        
+        //  "結果発表" が含まれる場合、スタイルを変更
+        if (content.includes("結果発表")) {
+            messageBubble.innerHTML = `<strong class="result-heading">${content}</strong>`;
+        } else {
+            messageBubble.textContent = content;
+        }
 
         messageRow.appendChild(messageBubble);
         chatArea.appendChild(messageRow);

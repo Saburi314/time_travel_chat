@@ -7,16 +7,11 @@
     line-height: 1.6;
     padding: 10px;
     background-color: #f9f9f9;
-    overflow-y: auto;
-    height: 400px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
 }
 
-/* 吹き出しのスタイル */
 .message-row {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 .message-row.user {
@@ -33,28 +28,24 @@
     border-radius: 15px;
     font-size: 14px;
     position: relative;
-    word-wrap: break-word;
 }
 
-/* ユーザーの吹き出し（右側・水色） */
 .bubble.user {
     background-color: #cce5ff;
     color: #004085;
     border-bottom-right-radius: 0;
 }
 
-/* AIの吹き出し（左側・灰色） */
 .bubble.ai {
     background-color: #e9ecef;
     color: #495057;
     border-bottom-left-radius: 0;
 }
 
-/* 吹き出しの矢印 */
 .bubble.ai::before {
     content: '';
     position: absolute;
-    top: 10px;
+    top: 0;
     left: -10px;
     border-width: 10px;
     border-style: solid;
@@ -64,14 +55,13 @@
 .bubble.user::after {
     content: '';
     position: absolute;
-    top: 10px;
+    top: 0;
     right: -10px;
     border-width: 10px;
     border-style: solid;
     border-color: transparent transparent transparent #cce5ff;
 }
 
-/* AIアイコン */
 .ai-icon {
     width: 40px;
     height: 40px;
@@ -79,15 +69,15 @@
     margin-right: 10px;
 }
 
-/* 読み込みスピナー */
 .loading-spinner {
     display: inline-block;
-    width: 15px;
-    height: 15px;
-    border: 3px solid rgba(0, 0, 0, 0.3);
-    border-top: 3px solid #333;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-top: 2px solid #333;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    margin-right: 5px;
 }
 
 @keyframes spin {
