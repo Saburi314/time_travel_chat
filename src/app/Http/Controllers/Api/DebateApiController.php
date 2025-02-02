@@ -13,7 +13,7 @@ class DebateApiController extends Controller
     public function getAiResponse(Request $request)
     {
         try {
-            // ✅ バリデーション: `message` キーが存在し、かつ文字列であることを確認
+            //  バリデーション: `message` キーが存在し、かつ文字列であることを確認
             $request->validate([
                 'message' => 'required|string'
             ]);
@@ -22,7 +22,7 @@ class DebateApiController extends Controller
     
             $sessionId = session()->getId();
     
-            // ✅ 履歴を取得または新規作成
+            //  履歴を取得または新規作成
             $chatHistory = ChatHistory::firstOrCreate(
                 ['session_id' => $sessionId],
                 ['messages' => []]
@@ -30,10 +30,10 @@ class DebateApiController extends Controller
     
             $messages = $chatHistory->messages;
     
-            // ✅ ユーザーのメッセージを追加
+            //  ユーザーのメッセージを追加
             $messages[] = ['role' => 'user', 'content' => $userMessage];
     
-            // ✅ OpenAI API へ送信
+            //  OpenAI API へ送信
             $apiKey = env('CHAT_GPT_API_KEY');
             $url = 'https://api.openai.com/v1/chat/completions';
     
@@ -62,10 +62,10 @@ class DebateApiController extends Controller
             if ($response->successful()) {
                 $aiMessage = $response->json('choices.0.message.content');
     
-                // ✅ AIのメッセージを履歴に追加
+                //  AIのメッセージを履歴に追加
                 $messages[] = ['role' => 'assistant', 'content' => $aiMessage];
     
-                // ✅ データベースに履歴を更新
+                //  データベースに履歴を更新
                 $chatHistory->update(['messages' => $messages]);
     
                 return response()->json(['response' => $aiMessage]);
