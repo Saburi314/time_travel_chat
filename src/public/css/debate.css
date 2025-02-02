@@ -94,3 +94,103 @@
     border-radius: 5px;
     margin-bottom: 5px;
 }
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 500px; /* 必要に応じて調整 */
+}
+
+#chat-area {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.chat-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 10px;
+}
+
+/* 🔹 チャットエリア全体 */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 🔹 チャット履歴エリア */
+#chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* 🔹 入力エリアとボタン */
+.chat-form {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+}
+
+/* 🔹 入力欄 */
+#user-input {
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* 🔹 ボタンエリア */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+/* 🔹 送信ボタン */
+.btn-success {
+    flex: 1;
+    margin-right: 5px;
+}
+
+/* 🔹 リセットボタン */
+.btn-danger {
+    flex: 1;
+    margin-left: 5px;
+}
+
+/* 🔹 スマホ向け調整 */
+@media (max-width: 768px) {
+    .chat-form {
+        padding: 8px;
+    }
+
+    #user-input {
+        font-size: 14px;
+    }
+
+    .button-container {
+        flex-direction: column;
+    }
+
+    .btn-success,
+    .btn-danger {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
