@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetButton = document.getElementById('reset-button');
 
     /**
-     * 🔹 チャット履歴を取得
+     *  チャット履歴を取得
      */
     async function loadChatHistory() {
         try {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 ユーザーのメッセージを送信
+     *  ユーザーのメッセージを送信
      */
     async function sendUserMessage(userMessage) {
         if (!userMessage) return;
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         addMessage('user', userMessage);
         input.value = '';
 
-        // 🔹 AIのレスポンス待ちを表示
+        //  AIのレスポンス待ちを表示
         const loadingMessage = showLoadingMessage();
 
         try {
@@ -60,10 +60,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 チャットをリセット
+     *  チャットをリセット
      */
     async function resetChatSession() {
-        // 🔹 リセット中のスピナーを表示
+        //  リセット中のスピナーを表示
         const loadingMessage = showLoadingMessage('ディベートをリセット中...');
 
         try {
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 CSRFトークンを更新
+     *  CSRFトークンを更新
      */
     function updateCsrfToken(newToken) {
         if (newToken) {
@@ -99,14 +99,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 チャットメッセージを追加
+     *  チャットメッセージを追加
      */
     function addMessage(role, content) {
         const roleMap = {
             'user': 'あなた',
             'assistant': 'ひろゆき'
         };
-        const displayRole = roleMap[role] || role;
         const roleClass = role === 'user' ? 'user' : 'ai';
 
         const messageRow = document.createElement('div');
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 読み込み中のスピナーを表示
+     *  読み込み中のスピナーを表示
      */
     function showLoadingMessage(text = "考え中...") {
         const messageRow = document.createElement('div');
@@ -140,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     * 🔹 読み込み中のスピナーを削除
+     *  読み込み中のスピナーを削除
      */
     function removeLoadingMessage(messageRow) {
         if (messageRow && messageRow.parentNode === chatArea) {
