@@ -30,8 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function sendUserMessage(userMessage) {
         if (!userMessage) return;
 
-        addMessage('あなた', userMessage);
+        addMessage('user', userMessage);
         input.value = '';
+
+        // 🔹 AIのレスポンス待ちを表示
+        const loadingMessage = showLoadingMessage();
 
         try {
             const response = await fetch('/ai-response', {
@@ -47,9 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const data = await response.json();
-            addMessage('ひろゆき', data.response || 'エラーが発生しました。');
+            removeLoadingMessage(loadingMessage);
+            addMessage('assistant', data.response || 'エラーが発生しました。');
         } catch (error) {
             console.error('エラー:', error);
+            removeLoadingMessage(loadingMessage);
             chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
         }
     }
@@ -58,6 +63,9 @@ document.addEventListener('DOMContentLoaded', async () => {
      * 🔹 チャットをリセット
      */
     async function resetChatSession() {
+        // 🔹 リセット中のスピナーを表示
+        const loadingMessage = showLoadingMessage('ディベートをリセット中...');
+
         try {
             const response = await fetch('/reset-chat', {
                 method: 'POST',
@@ -73,6 +81,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('リセットエラー:', error);
             chatArea.innerHTML = '<div class="text-danger">履歴のリセットに失敗しました。</div>';
+        } finally {
+            removeLoadingMessage(loadingMessage);
         }
     }
 
@@ -92,22 +102,60 @@ document.addEventListener('DOMContentLoaded', async () => {
      * 🔹 チャットメッセージを追加
      */
     function addMessage(role, content) {
-        const messageDiv = document.createElement('div');
-        messageDiv.innerHTML = `<strong>${role}:</strong> ${content}`;
-        chatArea.appendChild(messageDiv);
+        const roleMap = {
+            'user': 'あなた',
+            'assistant': 'ひろゆき'
+        };
+        const displayRole = roleMap[role] || role;
+        const roleClass = role === 'user' ? 'user' : 'ai';
+
+        const messageRow = document.createElement('div');
+        messageRow.classList.add('message-row', roleClass);
+
+        const messageBubble = document.createElement('div');
+        messageBubble.classList.add('bubble', roleClass);
+        messageBubble.textContent = content;
+
+        messageRow.appendChild(messageBubble);
+        chatArea.appendChild(messageRow);
         chatArea.scrollTop = chatArea.scrollHeight;
     }
 
-    // 🔹 初回の履歴読み込み
+    /**
+     * 🔹 読み込み中のスピナーを表示
+     */
+    function showLoadingMessage(text = "考え中...") {
+        const messageRow = document.createElement('div');
+        messageRow.classList.add('message-row', 'ai');
+
+        const messageBubble = document.createElement('div');
+        messageBubble.classList.add('bubble', 'ai');
+        messageBubble.innerHTML = `<span class="loading-spinner"></span> ${text}`;
+
+        messageRow.appendChild(messageBubble);
+        chatArea.appendChild(messageRow);
+        chatArea.scrollTop = chatArea.scrollHeight;
+
+        return messageRow;
+    }
+
+    /**
+     * 🔹 読み込み中のスピナーを削除
+     */
+    function removeLoadingMessage(messageRow) {
+        if (messageRow && messageRow.parentNode === chatArea) {
+            chatArea.removeChild(messageRow);
+        }
+    }
+
+    // 初回の履歴読み込み
     await loadChatHistory();
 
-    // 🔹 ユーザーからメッセージが送信された場合
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await sendUserMessage(input.value.trim());
     });
 
-    // 🔹 リセットボタンがクリックされた場合
     resetButton.addEventListener('click', async () => {
         await resetChatSession();
     });
