@@ -8,9 +8,17 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\ChatHistory;
 use App\Constants\Opponents;
+use App\Services\SessionService;
 
 class DebateApiController extends Controller
 {
+    private $sessionService;
+
+    public function __construct(SessionService $sessionService)
+    {
+        $this->sessionService = $sessionService;
+    }
+
     /**
      * 🔹 AIのレスポンスを取得
      */
@@ -94,8 +102,8 @@ class DebateApiController extends Controller
     public function resetChatHistory()
     {
         try {
-            session()->invalidate();
-            session()->regenerateToken();
+            // 🔹 セッションリセット（共通処理）
+            $this->sessionService->invalidateSession();
 
             return response()->json([
                 'message' => 'ディベートのセッションをリセットしました。',
