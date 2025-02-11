@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeChatApp();
 });
 
-const opponentKey = window.opponentKey;
-const Opponents = window.Opponents;
-const opponentData = Opponents[opponentKey];
+let opponentKey = window.opponentKey;
+let Opponents = window.Opponents;
+let opponentData = Opponents[opponentKey];
 
 /**
  * 🔹 チャットアプリの初期化
@@ -16,12 +16,26 @@ async function initializeChatApp() {
     const sendButton = document.getElementById('send-button');
     const resetButton = document.getElementById('reset-button');
 
+    // ボタンを一時的に無効化
+    setButtonsDisabled(true, sendButton, resetButton);
+
+    // 履歴を取得し、画面に反映
     await loadChatHistory(chatArea);
+
+    // イベントリスナーを登録
     registerEventListeners(form, input, resetButton, chatArea);
 
-    // 初期化完了後、ボタンを有効化
-    sendButton.disabled = false;
-    resetButton.disabled = false;
+    // 初期化完了後にボタンを有効化
+    setButtonsDisabled(false, sendButton, resetButton);
+}
+
+/**
+ * 🔹 ボタンの有効・無効を切り替え
+ */
+function setButtonsDisabled(disabled, ...buttons) {
+    buttons.forEach(button => {
+        if (button) button.disabled = disabled;
+    });
 }
 
 /**
@@ -33,9 +47,7 @@ function registerEventListeners(form, input, resetButton, chatArea) {
         event.preventDefault();
         await sendUserMessage(input.value.trim(), chatArea, input);
     });
-    resetButton.addEventListener('click', async () => {
-        await resetChatSession(chatArea);
-    });
+    resetButton.addEventListener('click', async () => await resetChatSession(chatArea));
 }
 
 /**
@@ -43,13 +55,8 @@ function registerEventListeners(form, input, resetButton, chatArea) {
  */
 function handleUserInputKeydown(event, form) {
     if (event.key === 'Enter') {
-        if (event.shiftKey) {
-            event.preventDefault();
-            insertNewLineAtCursor(event.target);
-        } else {
-            event.preventDefault();
-            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-        }
+        event.preventDefault();
+        event.shiftKey ? insertNewLineAtCursor(event.target) : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     }
 }
 
@@ -62,9 +69,7 @@ async function loadChatHistory(chatArea) {
         if (!response.ok) throw new Error(`履歴取得エラー: ${response.status}`);
 
         const data = await response.json();
-        if (data.history) {
-            data.history.forEach(({ role, content }) => addMessage(role, content, chatArea));
-        }
+        data.history?.forEach(({ role, content }) => addMessage(role, content, chatArea));
     } catch (error) {
         console.error('履歴取得エラー:', error);
     }
@@ -79,31 +84,16 @@ async function sendUserMessage(userMessage, chatArea, input) {
     addMessage('user', userMessage, chatArea);
     input.value = '';
 
-    //  AIのレスポンス待ちを表示
+    // AIのレスポンス待ちを表示
     const loadingMessage = showLoadingMessage(chatArea);
 
     try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const response = await fetchJson('/ai-response', 'POST', { message: userMessage, opponentKey });
 
-        const response = await fetch('/ai-response', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            credentials: 'include',
-            body: JSON.stringify({ message: userMessage, opponentKey: opponentKey })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`送信エラー: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
         removeLoadingMessage(loadingMessage, chatArea);
-        addMessage('assistant', data.response || 'エラーが発生しました。', chatArea);
+        addMessage('assistant', response.response || 'エラーが発生しました。', chatArea);
     } catch (error) {
-        console.error('エラー:', error);
-        removeLoadingMessage(loadingMessage, chatArea);
-        chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
+        handleFetchError(error, chatArea, loadingMessage);
     }
 }
 
@@ -111,29 +101,47 @@ async function sendUserMessage(userMessage, chatArea, input) {
  * 🔹 チャットをリセット
  */
 async function resetChatSession(chatArea) {
-    //  リセット中のスピナーを表示
+    // リセット中のスピナーを表示
     const loadingMessage = showLoadingMessage(chatArea, 'ディベートをリセット中...');
 
     try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        const response = await fetch('/reset-chat', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-            credentials: 'include',
-        });
-
-        if (!response.ok) throw new Error(`リセットエラー: ${response.status}`);
-
-        const data = await response.json();
-        updateCsrfToken(data.csrf_token);
+        const response = await fetchJson('/reset-chat', 'POST');
+        updateCsrfToken(response.csrf_token);
         chatArea.innerHTML = '<div class="text-success">ディベートの履歴をリセットしました。AIの記憶もリセットされました。</div>';
     } catch (error) {
-        console.error('リセットエラー:', error);
-        chatArea.innerHTML = '<div class="text-danger">履歴のリセットに失敗しました。</div>';
-    } finally {
-        removeLoadingMessage(loadingMessage, chatArea);
+        handleFetchError(error, chatArea, loadingMessage);
     }
+}
+
+/**
+ * 🔹 Fetch API の共通ラッパー
+ */
+async function fetchJson(url, method = 'GET', body = null) {
+    const headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() };
+    const options = { method, headers, credentials: 'include' };
+
+    if (body) options.body = JSON.stringify(body);
+
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
+
+    return response.json();
+}
+
+/**
+ * 🔹 Fetch エラーの処理
+ */
+function handleFetchError(error, chatArea, loadingMessage) {
+    console.error('エラー:', error);
+    removeLoadingMessage(loadingMessage, chatArea);
+    chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
+}
+
+/**
+ * 🔹 CSRFトークンを取得
+ */
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
 /**
@@ -151,14 +159,11 @@ function updateCsrfToken(newToken) {
  * 🔹 チャットメッセージを追加
  */
 function addMessage(role, content, chatArea) {
-    const roleClass = role === 'user' ? 'user' : 'ai';
-
-    //  メッセージ全体のコンテナ
     const messageRow = document.createElement('div');
+    const roleClass = role === 'assistant' ? 'ai' : 'user';
     messageRow.classList.add('message-row', roleClass);
 
-    //  AIのときだけアイコンを表示
-    if (role === 'assistant') {
+    if (roleClass === 'ai') {
         const icon = document.createElement('img');
         icon.classList.add('ai-icon');
         icon.src = opponentData.image;
@@ -166,19 +171,23 @@ function addMessage(role, content, chatArea) {
         messageRow.appendChild(icon);
     }
 
-    //  メッセージ吹き出し
     const messageBubble = document.createElement('div');
     messageBubble.classList.add('bubble', roleClass);
-
-    // `###` の行を見出しとして処理
-    const lines = content.split("\n");
-    messageBubble.innerHTML = lines
-        .map(line => line.startsWith("### ") ? `<h3 class="result-heading">${line.replace('### ', '')}</h3>` : `<p>${line}</p>`)
-        .join("");
+    messageBubble.innerHTML = formatMessageContent(content);
 
     messageRow.appendChild(messageBubble);
     chatArea.appendChild(messageRow);
     chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+
+/**
+ * 🔹 メッセージ内容を整形
+ */
+function formatMessageContent(content) {
+    return content.split("\n").map(line => 
+        line.startsWith("### ") ? `<h3 class="result-heading">${line.replace('### ', '')}</h3>` : `<p>${line}</p>`
+    ).join("");
 }
 
 /**
@@ -203,7 +212,7 @@ function showLoadingMessage(chatArea, text = "考え中...") {
  * 🔹 読み込み中のスピナーを削除
  */
 function removeLoadingMessage(messageRow, chatArea) {
-    if (messageRow && messageRow.parentNode === chatArea) {
+    if (messageRow?.parentNode === chatArea) {
         chatArea.removeChild(messageRow);
     }
 }
