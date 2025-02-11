@@ -13,10 +13,15 @@ async function initializeChatApp() {
     const form = document.getElementById('chat-form');
     const input = document.getElementById('user-input');
     const chatArea = document.getElementById('chat-area');
+    const sendButton = document.getElementById('send-button');
     const resetButton = document.getElementById('reset-button');
 
     await loadChatHistory(chatArea);
     registerEventListeners(form, input, resetButton, chatArea);
+
+    // 初期化完了後、ボタンを有効化
+    sendButton.disabled = false;
+    resetButton.disabled = false;
 }
 
 /**
