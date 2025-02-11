@@ -16,7 +16,6 @@
                 'hiroyuki' => '西村博之',
                 'matsuko' => 'マツコ・デラックス',
                 'takafumi' => '堀江貴文',
-                'toshio' => '村上龍'
             ];
         @endphp
 

@@ -13,7 +13,9 @@
 <body class="bg-light">
     <header class="bg-success text-white py-3">
         <div class="container">
-            <h1 class="text-center">RONPAI -ディベートアプリ-</h1>
+            <a href="{{ url('/') }}" class="text-white text-decoration-none">
+                <h1 class="text-center">RONPAI -ディベートアプリ-</h1>
+            </a>
         </div>
     </header>
     <main class="container py-4">

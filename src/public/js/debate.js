@@ -3,6 +3,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
+ * 🔹 有名人の設定
+ */
+const opponentConfig = {
+    hiroyuki: { name: "ひろゆき", icon: "/images/hiroyuki_icon.webp" },
+    matsuko: { name: "マツコ・デラックス", icon: "/images/matsuko_DX.jpg" },
+    takafumi: { name: "堀江貴文", icon: "/images/horie_takafumi.jpg" }
+};
+
+/**
+ * 🔹 GETパラメータから `opponent` を取得
+ */
+const urlParams = new URLSearchParams(window.location.search);
+const opponentKey = urlParams.get('opponent') || 'hiroyuki'; // デフォルトは `ひろゆき`
+const opponent = opponentConfig[opponentKey] || opponentConfig.hiroyuki; // 存在しない場合 `ひろゆき`
+
+/**
  * 🔹 チャットアプリの初期化
  */
 async function initializeChatApp() {
@@ -49,7 +65,7 @@ function handleUserInputKeydown(event, form) {
  */
 async function loadChatHistory(chatArea) {
     try {
-        const response = await fetch('/get-chat-history', { method: 'GET', credentials: 'include' });
+        const response = await fetch(`/get-chat-history?opponent=${opponentKey}`, { method: 'GET', credentials: 'include' });
         if (!response.ok) throw new Error(`履歴取得エラー: ${response.status}`);
 
         const data = await response.json();
@@ -80,7 +96,7 @@ async function sendUserMessage(userMessage, chatArea, input) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             credentials: 'include',
-            body: JSON.stringify({ message: userMessage })
+            body: JSON.stringify({ message: userMessage, opponent: opponentKey })
         });
 
         if (!response.ok) {
@@ -111,7 +127,8 @@ async function resetChatSession(chatArea) {
         const response = await fetch('/reset-chat', {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': csrfToken },
-            credentials: 'include'
+            credentials: 'include',
+            body: JSON.stringify({ opponent: opponentKey })
         });
 
         if (!response.ok) throw new Error(`リセットエラー: ${response.status}`);
@@ -144,7 +161,7 @@ function updateCsrfToken(newToken) {
 function addMessage(role, content, chatArea) {
     const roleMap = {
         'user': 'あなた',
-        'assistant': 'ひろゆき'
+        'assistant': opponent.name
     };
     const roleClass = role === 'user' ? 'user' : 'ai';
 
@@ -156,17 +173,17 @@ function addMessage(role, content, chatArea) {
     if (role === 'assistant') {
         const icon = document.createElement('img');
         icon.classList.add('ai-icon');
-        icon.src = '/images/hiroyuki_icon.webp';
-        icon.alt = 'ひろゆき';
+        icon.src = opponent.icon;
+        icon.alt = opponent.name;
         messageRow.appendChild(icon);
-    }
+    } 
 
     //  メッセージ吹き出し
     const messageBubble = document.createElement('div');
     messageBubble.classList.add('bubble', roleClass);
-
-    // 🏆 `###` の行のみ見出しにする
-    const lines = content.split("\n"); // メッセージを改行ごとに分割
+    
+    // `###` の行を見出しとして処理
+    const lines = content.split("\n");
     messageBubble.innerHTML = lines
         .map(line => line.startsWith("### ") ? `<h3 class="result-heading">${line.replace('### ', '')}</h3>` : `<p>${line}</p>`)
         .join("");
