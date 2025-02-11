@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DebateController;
 use App\Http\Controllers\Api\DebateApiController;
 
 /*
@@ -15,16 +17,14 @@ use App\Http\Controllers\Api\DebateApiController;
 */
 
 // ホーム画面
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 
 // 議論画面
-Route::get('/debate', function () {
-    return view('debate');
-});
+Route::get('/debate', [DebateController::class, 'index'])->name('debate');
 
-// APIルート
+
+// AIとのやり取り関連（セッションやCsrfを利用している為、webルートに記載）
 Route::post('/ai-response', [DebateApiController::class, 'getAiResponse'])->middleware('web');
 Route::get('/get-chat-history', [DebateApiController::class, 'getChatHistory'])->middleware('web');
 Route::post('/reset-chat', [DebateApiController::class, 'resetChatHistory'])->middleware('web');

@@ -12,7 +12,7 @@ class ChatHistory extends Model
     protected $fillable = ['session_id', 'messages'];
 
     protected $casts = [
-        'messages' => 'json', // ✅ JSONデータを自動的にキャスト
+        'messages' => 'json',
     ];
 
     /**

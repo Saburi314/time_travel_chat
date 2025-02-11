@@ -6,14 +6,8 @@ use Illuminate\Http\Request;
 
 class DebateController extends Controller
 {
-    // ホーム画面を表示
-    public function home()
-    {
-        return view('home');
-    }
-
     // 議論画面を表示
-    public function debate()
+    public function index()
     {
         return view('debate');
     }
