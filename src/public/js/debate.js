@@ -2,9 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeChatApp();
 });
 
-const opponentKey = window.opponentKey || 'hiroyuki';
+const opponentKey = window.opponentKey;
 const Opponents = window.Opponents;
-const opponentData = Opponents[opponentKey] || Opponents['hiroyuki'];
+const opponentData = Opponents[opponentKey];
 
 /**
  * 🔹 チャットアプリの初期化

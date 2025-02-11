@@ -18,7 +18,7 @@ class DebateApiController extends Controller
     {
         try {
             $userMessage = $request->input('message');
-            $opponentKey = $request->input('opponentKey', 'hiroyuki');
+            $opponentKey = $request->input('opponentKey', Opponents::DEFAULT);
             $opponentData = Opponents::get($opponentKey);
 
             $sessionId = session()->getId();
@@ -70,7 +70,7 @@ class DebateApiController extends Controller
     {
         try {
             $sessionId = session()->getId();
-            $opponentKey = $request->query('opponentKey', 'hiroyuki');
+            $opponentKey = $request->query('opponentKey', Opponents::DEFAULT);
 
             Log::info("Fetching chat history for session: " . $sessionId);
 

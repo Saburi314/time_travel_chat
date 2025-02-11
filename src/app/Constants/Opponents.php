@@ -4,6 +4,9 @@ namespace App\Constants;
 
 class Opponents
 {
+
+    public const DEFAULT = 'hiroyuki'; // 🔹 デフォルトの議論相手
+
     public const LIST = [
         'hiroyuki' => [
             'name' => '西村博之',
@@ -45,7 +48,7 @@ class Opponents
      */
     public static function get(string $key)
     {
-        return self::LIST[$key] ?? self::LIST['hiroyuki']; // デフォルト: 西村博之
+        return self::LIST[$key] ?? self::LIST[self::DEFAULT];
     }
 
     /**

@@ -18,8 +18,8 @@
 
 <!-- 🔹 JavaScript に値を渡す -->
 <script>
-    window.opponentKey = @json($opponentKey);
     window.Opponents = @json(\App\Constants\Opponents::LIST);
+    window.opponentKey = @json($opponentKey) || @json(\App\Constants\Opponents::DEFAULT);
 </script>
 
 @endsection
