@@ -22,6 +22,9 @@ async function initializeChatApp() {
     // 履歴を取得し、画面に反映
     await loadChatHistory(chatArea);
 
+    // **最初に AI が話す**
+    await sendUserMessage('', chatArea, input, true);
+
     // イベントリスナーを登録
     registerEventListeners(form, input, resetButton, chatArea);
 
@@ -78,17 +81,20 @@ async function loadChatHistory(chatArea) {
 /**
  * 🔹 ユーザーのメッセージを送信
  */
-async function sendUserMessage(userMessage, chatArea, input) {
-    if (!userMessage) return;
+async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage = false) {
+    if (!isInitialAiMessage && !userMessage) return;
 
-    addMessage('user', userMessage, chatArea);
-    input.value = '';
+    if (!isInitialAiMessage) {
+        addMessage('user', userMessage, chatArea);
+        input.value = '';
+    }
 
-    // AIのレスポンス待ちを表示
+    //  AIのレスポンス待ちを表示
     const loadingMessage = showLoadingMessage(chatArea);
 
     try {
-        const response = await fetchJson('/ai-response', 'POST', { message: userMessage, opponentKey });
+        const bodyData = isInitialAiMessage ? { opponentKey } : { message: userMessage, opponentKey };
+        const response = await fetchJson('/ai-response', 'POST', bodyData);
 
         removeLoadingMessage(loadingMessage, chatArea);
         addMessage('assistant', response.response || 'エラーが発生しました。', chatArea);

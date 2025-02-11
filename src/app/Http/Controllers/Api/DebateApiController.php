@@ -27,16 +27,29 @@ class DebateApiController extends Controller
      */
     public function getAiResponse(Request $request)
     {
-        $userMessage = $request->input('message');
-        $opponentKey = $request->input('opponentKey', Opponents::DEFAULT);
         $sessionId = session()->getId();
-
-        $messages = $this->chatHistoryService->addUserMessage($sessionId, $userMessage);
+        $opponentKey = $request->input('opponentKey', Opponents::DEFAULT);
+        $userMessage = $request->input('message', '');
+        $opponentData = Opponents::get($opponentKey);
+        $messages = [];
+    
+        // **最初の AI メッセージの場合**
+        if ($userMessage === '') {
+            $messages[] = ['role' => 'system', 'content' => $opponentData['system_message']];
+        } else {
+            $messages = $this->chatHistoryService->addUserMessage($sessionId, $userMessage);
+        }
+    
+        // AI からのレスポンスを取得
         $aiMessage = $this->aiService->getAiResponse($messages, $opponentKey);
-        $this->chatHistoryService->addAiMessage($sessionId, $aiMessage);
-
+    
+        // **通常の会話の場合、履歴に保存**
+        if ($userMessage !== '') {
+            $this->chatHistoryService->addAiMessage($sessionId, $aiMessage);
+        }
+    
         return response()->json(['response' => $aiMessage]);
-    }
+    }    
 
     /**
      * 🔹 チャット履歴を取得
