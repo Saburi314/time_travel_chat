@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 
 class DebateController extends Controller
 {
-    // 議論画面を表示
-    public function index()
+    public function index(Request $request)
     {
-        return view('debate');
+        $opponentKey = $request->query('opponentKey', 'hiroyuki');
+
+        return view('debate', compact('opponentKey'));
     }
 }

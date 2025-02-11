@@ -1,22 +1,10 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    await initializeChatApp();
+document.addEventListener('DOMContentLoaded', () => {    
+    initializeChatApp();
 });
 
-/**
- * 🔹 有名人の設定
- */
-const opponentConfig = {
-    hiroyuki: { name: "ひろゆき", icon: "/images/hiroyuki_icon.webp" },
-    matsuko: { name: "マツコ・デラックス", icon: "/images/matsuko_DX.jpg" },
-    takafumi: { name: "堀江貴文", icon: "/images/horie_takafumi.jpg" }
-};
-
-/**
- * 🔹 GETパラメータから `opponent` を取得
- */
-const urlParams = new URLSearchParams(window.location.search);
-const opponentKey = urlParams.get('opponent') || 'hiroyuki'; // デフォルトは `ひろゆき`
-const opponent = opponentConfig[opponentKey] || opponentConfig.hiroyuki; // 存在しない場合 `ひろゆき`
+const opponentKey = window.opponentKey || 'hiroyuki';
+const Opponents = window.Opponents;
+const opponentData = Opponents[opponentKey] || Opponents['hiroyuki'];
 
 /**
  * 🔹 チャットアプリの初期化
@@ -65,7 +53,7 @@ function handleUserInputKeydown(event, form) {
  */
 async function loadChatHistory(chatArea) {
     try {
-        const response = await fetch(`/get-chat-history?opponent=${opponentKey}`, { method: 'GET', credentials: 'include' });
+        const response = await fetch(`/get-chat-history?opponentKey=${opponentKey}`, { method: 'GET', credentials: 'include' });
         if (!response.ok) throw new Error(`履歴取得エラー: ${response.status}`);
 
         const data = await response.json();
@@ -96,7 +84,7 @@ async function sendUserMessage(userMessage, chatArea, input) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             credentials: 'include',
-            body: JSON.stringify({ message: userMessage, opponent: opponentKey })
+            body: JSON.stringify({ message: userMessage, opponentKey: opponentKey })
         });
 
         if (!response.ok) {
@@ -128,7 +116,6 @@ async function resetChatSession(chatArea) {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': csrfToken },
             credentials: 'include',
-            body: JSON.stringify({ opponent: opponentKey })
         });
 
         if (!response.ok) throw new Error(`リセットエラー: ${response.status}`);
@@ -151,7 +138,7 @@ function updateCsrfToken(newToken) {
     if (newToken) {
         document.querySelector('meta[name="csrf-token"]').setAttribute('content', newToken);
     } else {
-        console.warn("⚠ CSRF トークンがレスポンスに含まれていません。");
+        console.warn("CSRF トークンがレスポンスに含まれていません。");
     }
 }
 
@@ -159,10 +146,6 @@ function updateCsrfToken(newToken) {
  * 🔹 チャットメッセージを追加
  */
 function addMessage(role, content, chatArea) {
-    const roleMap = {
-        'user': 'あなた',
-        'assistant': opponent.name
-    };
     const roleClass = role === 'user' ? 'user' : 'ai';
 
     //  メッセージ全体のコンテナ
@@ -173,15 +156,15 @@ function addMessage(role, content, chatArea) {
     if (role === 'assistant') {
         const icon = document.createElement('img');
         icon.classList.add('ai-icon');
-        icon.src = opponent.icon;
-        icon.alt = opponent.name;
+        icon.src = opponentData.image;
+        icon.alt = opponentData.name;
         messageRow.appendChild(icon);
-    } 
+    }
 
     //  メッセージ吹き出し
     const messageBubble = document.createElement('div');
     messageBubble.classList.add('bubble', roleClass);
-    
+
     // `###` の行を見出しとして処理
     const lines = content.split("\n");
     messageBubble.innerHTML = lines

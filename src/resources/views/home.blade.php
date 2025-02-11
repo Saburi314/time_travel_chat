@@ -11,19 +11,11 @@
 
     <!-- 議論相手の選択 -->
     <form id="opponent-form" action="{{ url('/debate') }}" method="GET">
-        @php
-            $opponents = [
-                'hiroyuki' => '西村博之',
-                'matsuko' => 'マツコ・デラックス',
-                'takafumi' => '堀江貴文',
-            ];
-        @endphp
-
-        @foreach ($opponents as $key => $name)
+        @foreach ($opponents as $key => $opponent)
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="opponent" id="opponent-{{ $key }}" value="{{ $key }}" {{ $loop->first ? 'checked' : '' }}>
+                <input class="form-check-input" type="radio" name="opponentKey" id="opponent-{{ $key }}" value="{{ $key }}" {{ $loop->first ? 'checked' : '' }}>
                 <label class="form-check-label" for="opponent-{{ $key }}">
-                    {{ $name }}
+                    {{ $opponent['name'] }}
                 </label>
             </div>
         @endforeach

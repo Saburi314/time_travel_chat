@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Constants\Opponents;
+use App\Models\ChatHistory;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        // セッションをリセット（議論履歴を削除する）
+        // セッションリセット（チャット履歴を削除する）
         session()->invalidate();
         session()->regenerateToken();
 
-        // ホーム画面へ遷移
-        return view('home');
+        return view('home', ['opponents' => Opponents::all()]);
     }
 }
