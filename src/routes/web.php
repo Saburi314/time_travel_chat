@@ -27,4 +27,4 @@ Route::get('/debate', [DebateController::class, 'index'])->name('debate');
 // AIとのやり取り関連（セッションやCsrfを利用している為、webルートに記載）
 Route::post('/ai-response', [DebateApiController::class, 'getAiResponse'])->middleware('web');
 Route::get('/get-chat-history', [DebateApiController::class, 'getChatHistory'])->middleware('web');
-Route::post('/reset-chat', [DebateApiController::class, 'resetChatHistory'])->middleware('web');
+Route::post('/delete-chat', [DebateApiController::class, 'deleteChatHistory'])->middleware('web');

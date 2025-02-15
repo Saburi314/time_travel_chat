@@ -5,21 +5,24 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\ChatHistoryService;
+use App\Services\UserTokenService;
 use App\Services\AiService;
-use App\Services\SessionService;
-use App\Constants\Opponents;
+use App\Models\Opponent;
 
 class DebateApiController extends Controller
 {
-    private $chatHistoryService;
-    private $aiService;
-    private $sessionService;
+    private ChatHistoryService $chatHistoryService;
+    private UserTokenService $userTokenService;
+    private AiService $aiService;
 
-    public function __construct(ChatHistoryService $chatHistoryService, AiService $aiService, SessionService $sessionService)
-    {
+    public function __construct(
+        ChatHistoryService $chatHistoryService,
+        UserTokenService $userTokenService,
+        AiService $aiService
+    ) {
         $this->chatHistoryService = $chatHistoryService;
+        $this->userTokenService = $userTokenService;
         $this->aiService = $aiService;
-        $this->sessionService = $sessionService;
     }
 
     /**
@@ -27,51 +30,55 @@ class DebateApiController extends Controller
      */
     public function getAiResponse(Request $request)
     {
-        $sessionId = session()->getId();
-        $opponentKey = $request->input('opponentKey', Opponents::DEFAULT);
-        $userMessage = $request->input('message', '');
-        $opponentData = Opponents::get($opponentKey);
-        $messages = [];
-    
-        // **最初の AI メッセージの場合**
-        if ($userMessage === '') {
-            $messages[] = ['role' => 'system', 'content' => $opponentData['system_message']];
-        } else {
-            $messages = $this->chatHistoryService->addUserMessage($sessionId, $userMessage);
-        }
-    
-        // AI からのレスポンスを取得
-        $aiMessage = $this->aiService->getAiResponse($messages, $opponentKey);
-    
-        // **通常の会話の場合、履歴に保存**
-        if ($userMessage !== '') {
-            $this->chatHistoryService->addAiMessage($sessionId, $aiMessage);
-        }
-    
-        return response()->json(['response' => $aiMessage]);
-    }    
+        $userToken = $this->userTokenService->getUserToken();
+        $opponent = Opponent::getOpponent((int) $request->input('opponentId'));
+
+        $aiMessage = $this->chatHistoryService->handleChatMessage(
+            $userToken, 
+            $opponent->id, 
+            $request->input('message')
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'AIのレスポンスを取得しました。',
+            'data' => ['response' => $aiMessage],
+        ]);
+    }
 
     /**
      * 🔹 チャット履歴を取得
      */
     public function getChatHistory(Request $request)
     {
-        $sessionId = session()->getId();
-        $chatHistory = $this->chatHistoryService->getChatHistory($sessionId);
+        $userToken = $this->userTokenService->getUserToken();
+        $opponent = Opponent::getOpponent((int) $request->query('opponentId'));
 
-        return response()->json(['history' => $chatHistory->messages ?? []]);
+        $chatHistory = ChatHistory::getChatHistory($userToken, $opponent->id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'チャット履歴を取得しました。',
+            'data' => ['history' => $chatHistory->messages ?? []],
+        ]);
     }
 
     /**
-     * 🔹 チャット履歴をリセット
+     * 🔹 チャット履歴を削除
      */
-    public function resetChatHistory()
+    public function deleteChatHistory(Request $request)
     {
-        $this->sessionService->invalidateSession();
-        
+        $userToken = $this->userTokenService->getUserToken();
+        $opponent = Opponent::getOpponent((int) $request->input('opponentId'));
+
+        ChatHistory::deleteChatHistory($userToken, $opponent->id);
+
         return response()->json([
-            'message' => 'ディベートのセッションをリセットしました。',
-            'csrf_token' => csrf_token()
-        ]);    
+            'status' => 'success',
+            'message' => 'ディベートの履歴をリセットしました。',
+            'data' => [
+                'csrf_token' => csrf_token(),
+            ],
+        ]);
     }
 }

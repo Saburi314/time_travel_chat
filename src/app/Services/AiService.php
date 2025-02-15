@@ -4,21 +4,21 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Constants\Opponents;
+use App\Models\Opponent;
 
 class AiService
 {
     /**
      * 🔹 OpenAI API を呼び出し、レスポンスを取得
      */
-    public function getAiResponse(array $messages, string $opponentKey): ?string
+    public function getAiResponse(array $messages, int $opponentId): ?string
     {
         try {
             $apiKey = env('CHAT_GPT_API_KEY');
             $url = 'https://api.openai.com/v1/chat/completions';
 
-            $opponentData = Opponents::get($opponentKey);
-            $systemMessage = [['role' => 'system', 'content' => $opponentData['system_message']]];
+            $opponent = Opponent::findOrDefault($opponentId);
+            $systemMessage = [['role' => 'system', 'content' => $opponent->system_message]];
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,

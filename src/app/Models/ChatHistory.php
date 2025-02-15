@@ -22,32 +22,33 @@ class ChatHistory extends Model
     }
 
     /**
-     * 🔹 `user_token` + `opponent_id` で履歴を取得
+     * 🔹 `user_token` + `opponent_id` で履歴を取得 or 新規作成
      */
-    public static function getChatHistory(string $userToken, int $opponentId)
+    public static function getChatHistory(string $userToken, int $opponentId): self
     {
-        return self::where('user_token', $userToken)
-            ->where('opponent_id', $opponentId)
-            ->first();
-    }
+        return self::firstOrCreate(
+            ['user_token' => $userToken, 'opponent_id' => $opponentId],
+            ['messages' => []]
+        );
+    }    
 
     /**
      * 🔹 新しいメッセージを追加
      */
-    public function addMessage(string $role, string $content)
+    public function addMessage(string $role, string $content): void
     {
         $messages = $this->messages ?? [];
         $messages[] = ['role' => $role, 'content' => $content];
-        $this->messages = $messages;
-        $this->save();
+
+        $this->update(['messages' => $messages]);
     }
 
     /**
-     * 🔹 ユーザーの履歴をリセット（論理削除）
+     * 🔹 チャット履歴をリセット（論理削除）
      */
-    public static function deleteChatHistory(string $userToken, int $opponentId)
+    public static function deleteChatHistory(string $userToken, int $opponentId): void
     {
-        return self::where('user_token', $userToken)
+        self::where('user_token', $userToken)
             ->where('opponent_id', $opponentId)
             ->delete();
     }

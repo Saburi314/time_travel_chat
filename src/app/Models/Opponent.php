@@ -12,8 +12,11 @@ class Opponent extends Model
 
     protected $fillable = ['name', 'image', 'system_message'];
 
-    public function chatHistories()
+    /**
+     * 🔹 ID から Opponent を取得（見つからなければデフォルト ID=1）
+     */
+    public static function getOpponent(int $opponentId): ?self
     {
-        return $this->hasMany(ChatHistory::class, 'opponent_id');
+        return self::where('id', $opponentId)->first() ?? self::findOrFail(1);
     }
 }

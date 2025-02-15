@@ -3,55 +3,36 @@
 namespace App\Services;
 
 use App\Models\ChatHistory;
-use Illuminate\Support\Facades\Log;
+use App\Models\Opponent;
+use App\Services\AiService;
 
 class ChatHistoryService
 {
-    /**
-     * 🔹 セッションIDに基づくチャット履歴を取得
-     */
-    public function getChatHistory(string $sessionId)
+    private AiService $aiService;
+
+    public function __construct(AiService $aiService)
     {
-        return ChatHistory::getHistoryBySession($sessionId);
+        $this->aiService = $aiService;
     }
 
     /**
-     * 🔹 ユーザーのメッセージを履歴に追加
+     * 🔹 ユーザーの発言を追加し、AI のレスポンスを取得
      */
-    public function addUserMessage(string $sessionId, string $userMessage)
+    public function handleChatMessage(string $userToken, int $opponentId, string $userMessage): string
     {
-        $chatHistory = ChatHistory::firstOrCreate(
-            ['session_id' => $sessionId],
-            ['messages' => []]
-        );
+        // 🔹 履歴を取得 or 作成
+        $chatHistory = ChatHistory::getChatHistory($userToken, $opponentId);
 
-        $messages = $chatHistory->messages;
-        $messages[] = ['role' => 'user', 'content' => $userMessage];
+        // 🔹 ユーザーのメッセージを追加
+        $chatHistory->addMessage('user', $userMessage);
 
-        $chatHistory->update(['messages' => $messages]);
+        // 🔹 AIのレスポンスを取得
+        $opponent = Opponent::findOrDefault($opponentId);
+        $aiMessage = $this->aiService->getAiResponse($chatHistory->messages, $opponent->id);
 
-        return $messages;
-    }
+        // 🔹 AIのメッセージを追加
+        $chatHistory->addMessage('assistant', $aiMessage);
 
-    /**
-     * 🔹 AIのレスポンスを履歴に追加
-     */
-    public function addAiMessage(string $sessionId, string $aiMessage)
-    {
-        $chatHistory = ChatHistory::where('session_id', $sessionId)->first();
-        if ($chatHistory) {
-            $messages = $chatHistory->messages;
-            $messages[] = ['role' => 'assistant', 'content' => $aiMessage];
-
-            $chatHistory->update(['messages' => $messages]);
-        }
-    }
-
-    /**
-     * 🔹 チャット履歴をリセット
-     */
-    public function resetChatHistory(string $sessionId)
-    {
-        ChatHistory::where('session_id', $sessionId)->delete();
+        return $aiMessage;
     }
 }
