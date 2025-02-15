@@ -72,5 +72,6 @@ class DebateApiController extends Controller
         return response()->json([
             'message' => 'ディベートのセッションをリセットしました。',
             'csrf_token' => csrf_token()
-        ]);    }
+        ]);    
+    }
 }
