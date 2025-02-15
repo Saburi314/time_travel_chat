@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Constants\Opponents;
+use App\Models\Opponent;
 
 class DebateController extends Controller
 {
     public function index(Request $request)
     {
-        $opponentKey = $request->query('opponentKey', Opponents::DEFAULT);
+        // opponentId を取得（無ければデフォルトを適用）
+        $opponent = Opponent::getOpponent((int) $request->query('opponentId'));
 
-        return view('debate', compact('opponentKey'));
+        return view('debate', compact('opponent'));
     }
 }
