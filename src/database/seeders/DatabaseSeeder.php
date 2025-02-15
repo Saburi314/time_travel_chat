@@ -8,7 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(OpponentsTableSeeder::class);
+        $this->call([
+            OpponentsSeeder::class, // Opponents の初期データを登録
+        ]);
     }
 }
-
