@@ -3,23 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Constants\Opponents;
-use App\Services\SessionService;
+use App\Models\Opponent;
+use App\Services\UserTokenService;
 
 class HomeController extends Controller
 {
-    private $sessionService;
+    private $userTokenService;
 
-    public function __construct(SessionService $sessionService)
+    public function __construct(UserTokenService $userTokenService)
     {
-        $this->sessionService = $sessionService;
+        $this->userTokenService = $userTokenService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // セッションリセット（チャット履歴を削除）
-        $this->sessionService->invalidateSession();
+        // 🔹 `user_token` をサービスから取得
+        $userToken = $this->userTokenService->getUserToken($request);
 
-        return view('home', ['opponents' => Opponents::all()]);
+        // 🔹 DB から `opponents` を取得
+        $opponents = Opponent::all();
+
+        return view('home', compact('opponents', 'userToken'));
     }
 }
