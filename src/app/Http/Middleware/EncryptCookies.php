@@ -12,6 +12,6 @@ class EncryptCookies extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'user_token', // 🔹 user_tokenは暗号化せずcookieに保存する
     ];
 }

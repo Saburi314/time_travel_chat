@@ -10,7 +10,7 @@ class DebateController extends Controller
     public function index(Request $request)
     {
         // opponentId を取得（無ければデフォルトを適用）
-        $opponent = Opponent::getOpponent((int) $request->query('opponentId'));
+        $opponent = Opponent::getOpponent((int) $request->query('opponent_id'));
 
         return view('debate', compact('opponent'));
     }

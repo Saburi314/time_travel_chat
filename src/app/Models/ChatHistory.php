@@ -26,12 +26,18 @@ class ChatHistory extends Model
      */
     public static function getChatHistory(string $userToken, int $opponentId): self
     {
+        \Log::info('🔍 getChatHistory: userToken の値を確認', [
+            'userToken' => $userToken,
+            'length' => strlen($userToken),
+            'opponentId' => $opponentId
+        ]);
+    
         return self::firstOrCreate(
             ['user_token' => $userToken, 'opponent_id' => $opponentId],
             ['messages' => []]
         );
-    }    
-
+    }
+    
     /**
      * 🔹 新しいメッセージを追加
      */

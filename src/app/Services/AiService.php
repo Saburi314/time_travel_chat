@@ -17,7 +17,7 @@ class AiService
             $apiKey = env('CHAT_GPT_API_KEY');
             $url = 'https://api.openai.com/v1/chat/completions';
 
-            $opponent = Opponent::findOrDefault($opponentId);
+            $opponent = Opponent::getOpponent($opponentId);
             $systemMessage = [['role' => 'system', 'content' => $opponent->system_message]];
 
             $response = Http::withHeaders([

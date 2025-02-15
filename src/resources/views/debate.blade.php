@@ -18,7 +18,7 @@
 
 <!-- 🔹 JavaScript に値を渡す -->
 <script>
-    window.opponentId = @json($opponent->id);
+    window.opponent = @json($opponent);
 </script>
 
 @endsection

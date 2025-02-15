@@ -2,9 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeChatApp();
 });
 
-let opponentKey = window.opponentKey;
-let Opponents = window.Opponents;
-let opponentData = Opponents[opponentKey];
+const opponent = window.opponent; // Laravel から受け取る opponent 情報
+const opponentId = opponent.id;
 
 /**
  * 🔹 チャットアプリの初期化
@@ -20,10 +19,12 @@ async function initializeChatApp() {
     setButtonsDisabled(true, sendButton, resetButton);
 
     // 履歴を取得し、画面に反映
-    await loadChatHistory(chatArea);
+    const hasHistory = await loadChatHistory(chatArea);
 
-    // **最初に AI が話す**
-    await sendUserMessage('', chatArea, input, true);
+    // 履歴がない場合、AI が最初に発言
+    if (!hasHistory) {
+        await sendUserMessage('', chatArea, input, true);
+    }
 
     // イベントリスナーを登録
     registerEventListeners(form, input, resetButton, chatArea);
@@ -68,14 +69,18 @@ function handleUserInputKeydown(event, form) {
  */
 async function loadChatHistory(chatArea) {
     try {
-        const response = await fetch(`/get-chat-history?opponentKey=${opponentKey}`, { method: 'GET', credentials: 'include' });
+        const response = await fetch(`/api/get-chat-history?opponentId=${opponentId}`, { method: 'GET', credentials: 'include' });
         if (!response.ok) throw new Error(`履歴取得エラー: ${response.status}`);
 
         const data = await response.json();
-        data.history?.forEach(({ role, content }) => addMessage(role, content, chatArea));
+        if (data.history && data.history.length > 0) {
+            data.history.forEach(({ role, content }) => addMessage(role, content, chatArea));
+            return true; // 履歴が存在する
+        }
     } catch (error) {
         console.error('履歴取得エラー:', error);
     }
+    return false; // 履歴がない
 }
 
 /**
@@ -89,19 +94,47 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
         input.value = '';
     }
 
-    //  AIのレスポンス待ちを表示
     const loadingMessage = showLoadingMessage(chatArea);
 
     try {
-        const bodyData = isInitialAiMessage ? { opponentKey } : { message: userMessage, opponentKey };
-        const response = await fetchJson('/ai-response', 'POST', bodyData);
+        const requestData = {
+            opponentId,
+            message: isInitialAiMessage ? '' : userMessage
+        };
+
+        console.log("📤 AIリクエスト送信:", requestData);
+
+        const response = await fetch('/api/ai-response', { // ✅ APIルートを変更
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        });
+
+        console.log("📥 AIレスポンス取得:", response);
+
+        if (!response.ok) {
+            throw new Error(`HTTPエラー: ${response.status}`);
+        }
+
+        const data = await response.json();
 
         removeLoadingMessage(loadingMessage, chatArea);
-        addMessage('assistant', response.response || 'エラーが発生しました。', chatArea);
+
+        if (!data.data || !data.data.response) {
+            console.error("❌ AIレスポンスが空です:", data);
+            addMessage('assistant', '❌ AIからの返答が取得できませんでした。', chatArea);
+            return;
+        }
+
+        addMessage('assistant', data.data.response, chatArea);
     } catch (error) {
-        handleFetchError(error, chatArea, loadingMessage);
+        console.error("❌ Fetch エラー:", error);
+        removeLoadingMessage(loadingMessage, chatArea);
+        chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
     }
 }
+
+
 
 /**
  * 🔹 チャットをリセット
@@ -111,54 +144,26 @@ async function resetChatSession(chatArea) {
     const loadingMessage = showLoadingMessage(chatArea, 'ディベートをリセット中...');
 
     try {
-        const response = await fetchJson('/reset-chat', 'POST');
+        const response = await fetch('/api/delete-chat', 'POST');
         updateCsrfToken(response.csrf_token);
         chatArea.innerHTML = '<div class="text-success">ディベートの履歴をリセットしました。AIの記憶もリセットされました。</div>';
+
+        // リセット後に AI の最初の発言を表示
+        await sendUserMessage('', chatArea, null, true);
     } catch (error) {
         handleFetchError(error, chatArea, loadingMessage);
     }
 }
 
 /**
- * 🔹 Fetch API の共通ラッパー
- */
-async function fetchJson(url, method = 'GET', body = null) {
-    const headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() };
-    const options = { method, headers, credentials: 'include' };
-
-    if (body) options.body = JSON.stringify(body);
-
-    const response = await fetch(url, options);
-    if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
-
-    return response.json();
-}
-
-/**
  * 🔹 Fetch エラーの処理
  */
 function handleFetchError(error, chatArea, loadingMessage) {
-    console.error('エラー:', error);
+    console.error('❌ Fetch エラー:', error);  // 🔹 エラーをコンソールに出力
+    console.error('❌ エラーレスポンス:', error.response);
+
     removeLoadingMessage(loadingMessage, chatArea);
     chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
-}
-
-/**
- * 🔹 CSRFトークンを取得
- */
-function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-}
-
-/**
- * 🔹 CSRFトークンを更新
- */
-function updateCsrfToken(newToken) {
-    if (newToken) {
-        document.querySelector('meta[name="csrf-token"]').setAttribute('content', newToken);
-    } else {
-        console.warn("CSRF トークンがレスポンスに含まれていません。");
-    }
 }
 
 /**
@@ -172,8 +177,8 @@ function addMessage(role, content, chatArea) {
     if (roleClass === 'ai') {
         const icon = document.createElement('img');
         icon.classList.add('ai-icon');
-        icon.src = opponentData.image;
-        icon.alt = opponentData.name;
+        icon.src = opponent.image;
+        icon.alt = opponent.name;
         messageRow.appendChild(icon);
     }
 
