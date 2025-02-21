@@ -14,6 +14,7 @@ async function initializeChatApp() {
     const chatArea = document.getElementById('chat-area');
     const sendButton = document.getElementById('send-button');
     const resetButton = document.getElementById('reset-button');
+    const initialMessage = '';
 
     // ボタンを一時的に無効化
     setButtonsDisabled(true, sendButton, resetButton);
@@ -23,7 +24,7 @@ async function initializeChatApp() {
 
     // 履歴がない場合、AI が最初に発言
     if (!hasHistory) {
-        await sendUserMessage('', chatArea, input, true);
+        await sendUserMessage(initialMessage, chatArea, input, true);
     }
 
     // イベントリスナーを登録
@@ -51,7 +52,7 @@ function registerEventListeners(form, input, resetButton, chatArea) {
         event.preventDefault();
         await sendUserMessage(input.value.trim(), chatArea, input);
     });
-    resetButton.addEventListener('click', async () => await resetChatSession(chatArea));
+    resetButton.addEventListener('click', async () => await resetChat(chatArea));
 }
 
 /**
@@ -99,7 +100,7 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
     try {
         const requestData = {
             opponentId,
-            message: isInitialAiMessage ? '' : userMessage
+            message: userMessage
         };
 
         console.log("📤 AIリクエスト送信:", requestData);
@@ -134,18 +135,32 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
     }
 }
 
-
-
 /**
  * 🔹 チャットをリセット
  */
-async function resetChatSession(chatArea) {
+async function resetChat(chatArea) {
     // リセット中のスピナーを表示
     const loadingMessage = showLoadingMessage(chatArea, 'ディベートをリセット中...');
 
     try {
-        const response = await fetch('/api/delete-chat', 'POST');
-        updateCsrfToken(response.csrf_token);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        const response = await fetch('/api/delete-chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                opponentId: opponentId // opponentIdをリクエストボディに含める
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTPエラー: ${response.status}`);
+        }
+
+        const data = await response.json();
         chatArea.innerHTML = '<div class="text-success">ディベートの履歴をリセットしました。AIの記憶もリセットされました。</div>';
 
         // リセット後に AI の最初の発言を表示

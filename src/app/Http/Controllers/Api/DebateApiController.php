@@ -95,25 +95,33 @@ class DebateApiController extends Controller
     public function deleteChatHistory(Request $request)
     {
         try {
+            Log::debug('deleteChatHistory called');
+            
             $validated = $request->validate([
                 'opponentId' => 'required|integer',
             ]);
-    
+
+            Log::debug('Validation passed', ['opponentId' => $validated['opponentId']]);
+
             $userToken = $this->userTokenService->getUserToken();
             $opponentId = $validated['opponentId'];
             $opponent = Opponent::getOpponent($opponentId);
-    
+
             if (!$opponent) {
+                Log::error('Opponent not found', ['opponentId' => $opponentId]);
                 return response()->json(['status' => 'error', 'message' => 'Opponent not found'], 400);
             }
-    
+
             ChatHistory::deleteChatHistory($userToken, $opponent->id);
-    
+
+            Log::debug('Chat history deleted', ['userToken' => $userToken, 'opponentId' => $opponentId]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'ディベートの履歴をリセットしました。',
             ]);
         } catch (\Exception $e) {
+            Log::error('Error deleting chat history', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'チャット履歴の削除中にエラーが発生しました。',
