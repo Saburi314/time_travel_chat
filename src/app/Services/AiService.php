@@ -27,7 +27,7 @@ class AiService
                 'model' => 'gpt-4o',
                 'messages' => array_merge($systemMessage, $messages),
                 'temperature' => 1.0,
-                'max_tokens' => 1000,
+                'max_tokens' => 600,
             ]);
 
             if ($response->successful()) {

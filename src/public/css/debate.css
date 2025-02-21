@@ -193,3 +193,7 @@ p {
         margin: 5px 0;
     }
 }
+
+.text-success {
+    margin-bottom: 15px;
+}

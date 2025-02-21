@@ -92,6 +92,10 @@ async function loadChatHistory(chatArea) {
 async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage = false) {
     if (!isInitialAiMessage && !userMessage) return;
 
+    const sendButton = document.getElementById('send-button');
+    const resetButton = document.getElementById('reset-button');
+    setButtonsDisabled(true, sendButton, resetButton); // 両方のボタンを無効化
+
     if (!isInitialAiMessage) {
         addMessage('user', userMessage, chatArea);
         input.value = '';
@@ -134,6 +138,8 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
         console.error("❌ Fetch エラー:", error);
         removeLoadingMessage(loadingMessage, chatArea);
         chatArea.innerHTML += `<div class="text-danger">❌ AIとの通信でエラーが発生しました。</div>`;
+    } finally {
+        setButtonsDisabled(false, sendButton, resetButton); // 両方のボタンを再び有効化
     }
 }
 
@@ -141,6 +147,10 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
  * 🔹 チャットをリセット
  */
 async function resetChat(chatArea) {
+    const sendButton = document.getElementById('send-button');
+    const resetButton = document.getElementById('reset-button');
+    setButtonsDisabled(true, sendButton, resetButton); // 両方のボタンを無効化
+
     // リセット中のスピナーを表示
     const loadingMessage = showLoadingMessage(chatArea, 'ディベートをリセット中...');
 
@@ -169,6 +179,8 @@ async function resetChat(chatArea) {
         await sendUserMessage('', chatArea, null, true);
     } catch (error) {
         handleFetchError(error, chatArea, loadingMessage);
+    } finally {
+        setButtonsDisabled(false, sendButton, resetButton); // 両方のボタンを再び有効化
     }
 }
 
