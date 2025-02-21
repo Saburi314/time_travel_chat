@@ -187,6 +187,12 @@ function handleFetchError(error, chatArea, loadingMessage) {
  * 🔹 チャットメッセージを追加
  */
 function addMessage(role, content, chatArea) {
+    // contentが空白またはundefinedの場合は何もしない
+    if (!content || content.trim() === '') {
+        console.log(`Skipping empty message for role=${role}`);
+        return;
+    }
+
     console.log(`Adding message: role=${role}, content=${content}`); // デバッグ情報を追加
 
     const messageRow = document.createElement('div');
@@ -209,7 +215,6 @@ function addMessage(role, content, chatArea) {
     chatArea.appendChild(messageRow);
     chatArea.scrollTop = chatArea.scrollHeight;
 }
-
 
 /**
  * 🔹 メッセージ内容を整形
