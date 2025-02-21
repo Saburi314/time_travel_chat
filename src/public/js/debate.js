@@ -107,7 +107,7 @@ async function sendUserMessage(userMessage, chatArea, input, isInitialAiMessage 
 
         console.log("📤 AIリクエスト送信:", requestData);
 
-        const response = await fetch('/api/ai-response', { // ✅ APIルートを変更
+        const response = await fetch('/api/ai-response', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
