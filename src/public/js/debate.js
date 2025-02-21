@@ -74,8 +74,10 @@ async function loadChatHistory(chatArea) {
         if (!response.ok) throw new Error(`履歴取得エラー: ${response.status}`);
 
         const data = await response.json();
-        if (data.history && data.history.length > 0) {
-            data.history.forEach(({ role, content }) => addMessage(role, content, chatArea));
+
+        // data.data.historyを参照するように修正
+        if (data.data && data.data.history && data.data.history.length > 0) {
+            data.data.history.forEach(({ role, content }) => addMessage(role, content, chatArea));
             return true; // 履歴が存在する
         }
     } catch (error) {
@@ -185,6 +187,8 @@ function handleFetchError(error, chatArea, loadingMessage) {
  * 🔹 チャットメッセージを追加
  */
 function addMessage(role, content, chatArea) {
+    console.log(`Adding message: role=${role}, content=${content}`); // デバッグ情報を追加
+
     const messageRow = document.createElement('div');
     const roleClass = role === 'assistant' ? 'ai' : 'user';
     messageRow.classList.add('message-row', roleClass);
