@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'ディベート')
+@section('title', 'タイムトラベルチャット')
 
 @section('content')
 
@@ -11,7 +11,7 @@
         <textarea id="user-input" class="form-control" placeholder="メッセージを入力" rows="2"></textarea>
         <div class="button-container">
             <button id="send-button" type="submit" class="btn btn-success" disabled>送信</button>
-            <button id="reset-button" type="button" class="btn btn-danger">ディベートをリセットする</button>
+            <button id="reset-button" type="button" class="btn btn-danger">会話をリセットする</button>
         </div>
     </form>
 </div>

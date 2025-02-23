@@ -5,8 +5,8 @@
 @section('content')
 <div class="text-center">
     <div class="mb-4">
-        <p class="lead">このアプリでは、AIとディベートを行うことができます。</p>
-        <p class="lead">議論相手を選んで、さっそく始めましょう！</p>
+        <p class="lead">このアプリでは、歴史上の人物と対話を行うことができます。</p>
+        <p class="lead">偉人を選んで、さっそく始めましょう！</p>
     </div>
 
     <!-- 議論相手の選択 -->
@@ -21,7 +21,7 @@
             </div>
         @endforeach
 
-        <button type="submit" class="btn btn-success btn-lg mt-3">議論する</button>
+        <button type="submit" class="btn btn-success btn-lg mt-3">会話する</button>
     </form>
 </div>
 

@@ -240,7 +240,7 @@ function formatMessageContent(content) {
 /**
  * 🔹 読み込み中のスピナーを表示
  */
-function showLoadingMessage(chatArea, text = "考え中...") {
+function showLoadingMessage(chatArea, text = "タイムトラベル中...") {
     const messageRow = document.createElement('div');
     messageRow.classList.add('message-row', 'ai');
 
