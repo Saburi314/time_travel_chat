@@ -92,17 +92,6 @@ p {
     flex-shrink: 0;
 }
 
-/* 🔹 結果発表の見出し */
-.result-heading {
-    font-size: 18px;
-    font-weight: bold;
-    color: #d9534f;
-    padding: 10px;
-    background-color: #f2dede;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
 /* 🔹 リセット時のメッセージ（AIの記憶リセット） */
 .reset-message {
     display: block;
