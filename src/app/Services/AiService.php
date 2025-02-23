@@ -18,7 +18,7 @@ class AiService
             $url = 'https://api.openai.com/v1/chat/completions';
 
             $opponent = Opponent::getOpponent($opponentId);
-            $systemMessage = [['role' => 'system', 'content' => $opponent->system_message]];
+            $systemMessage = $this->getSystemMessage($opponent);
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $apiKey,
@@ -40,5 +40,14 @@ class AiService
             Log::error("AI API 通信エラー: " . $e->getMessage());
             return null;
         }
+    }
+
+    public function getSystemMessage(Opponent $opponent)
+    {
+        // 既存のsystem_messageに加えて、人格を演じきる指示を追加
+        $systemMessageContent = $opponent->system_message . ' あなたはこの人物の人格を完全に演じきってください。必ず日本語で会話してください。';
+        $systemMessage = [['role' => 'system', 'content' => $systemMessageContent]];
+
+        return $systemMessage;
     }
 }

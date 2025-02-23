@@ -115,7 +115,7 @@ class DebateApiController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'ディベートの履歴をリセットしました。',
+                'message' => '会話の履歴をリセットしました。',
             ]);
         } catch (\Exception $e) {
             return response()->json([

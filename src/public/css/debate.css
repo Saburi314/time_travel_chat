@@ -196,3 +196,44 @@ p {
 .text-success {
     margin-bottom: 15px;
 }
+
+.form-check-input.d-none {
+    display: none; /* ラジオボタンを非表示にする */
+}
+
+.card {
+    cursor: pointer; /* カード全体をクリック可能にする */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    width: 18rem; /* デフォルトの幅 */
+}
+
+.card:hover {
+    transform: scale(1.05);
+    border-color: #007bff; /* ホバー時のボーダーカラーを変更 */
+}
+
+.card-img-top {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    text-align: center;
+}
+
+/* スマホ向け調整 */
+@media (max-width: 768px) {
+    .card {
+        width: 48%; /* スマホ版でカードをさらに小さくして複数表示 */
+        margin: 1%; /* カード間の余白を調整 */
+    }
+
+    .card-img-top {
+        height: 120px; /* 画像の高さを調整 */
+    }
+}

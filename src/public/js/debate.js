@@ -152,7 +152,7 @@ async function resetChat(chatArea) {
     setButtonsDisabled(true, sendButton, resetButton); // 両方のボタンを無効化
 
     // リセット中のスピナーを表示
-    const loadingMessage = showLoadingMessage(chatArea, 'ディベートをリセット中...');
+    const loadingMessage = showLoadingMessage(chatArea, '会話をリセット中...');
 
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -173,7 +173,7 @@ async function resetChat(chatArea) {
         }
 
         const data = await response.json();
-        chatArea.innerHTML = '<div class="text-success">ディベートの履歴をリセットしました。AIの記憶もリセットされました。</div>';
+        chatArea.innerHTML = '<div class="text-success">会話の履歴をリセットしました。AIの記憶もリセットされました。</div>';
 
         // リセット後に AI の最初の発言を表示
         await sendUserMessage('', chatArea, null, true);
@@ -240,7 +240,7 @@ function formatMessageContent(content) {
 /**
  * 🔹 読み込み中のスピナーを表示
  */
-function showLoadingMessage(chatArea, text = "タイムトラベル中...") {
+function showLoadingMessage(chatArea, text = "考え中...") {
     const messageRow = document.createElement('div');
     messageRow.classList.add('message-row', 'ai');
 
