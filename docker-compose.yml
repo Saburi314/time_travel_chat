@@ -13,6 +13,8 @@ services:
       - PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
     depends_on:
       - db
+    ports:
+      - "9001:9000"  # ホストの9001ポートをコンテナの9000ポートにマッピング
 
   db:
     image: mysql:8.0
@@ -23,7 +25,7 @@ services:
       MYSQL_USER: ronpai
       MYSQL_PASSWORD: secret
     ports:
-      - "3306:3306"
+      - "3307:3306"  # ホストの3307ポートをコンテナの3306ポートにマッピング
     volumes:
       - db-data:/var/lib/mysql
 
@@ -33,7 +35,7 @@ services:
       dockerfile: Dockerfile
     container_name: ronpai-apache
     ports:
-      - "80:80"  # Apacheのポートを公開
+      - "8080:80"  # ホストの8080ポートをコンテナの80ポートにマッピング
     volumes:
       - ./src:/var/www/html
       - ./000-default.conf:/etc/apache2/sites-available/000-default.conf:ro
