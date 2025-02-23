@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'タイムトラベルチャット')
+@section('title', '議論ページ')
 
 @section('content')
+<div class="text-center mb-4">
+    <img src="{{ asset($opponent->image) }}" alt="{{ $opponent->name }}" class="img-fluid" style="max-width: 200px;">
+    <h2>{{ $opponent->name }}</h2>
+    <p class="lead">{{ $opponent->system_message }}</p>
+</div>
 
 <div class="chat-container">
     <div id="chat-area" class="border rounded p-3"></div>
