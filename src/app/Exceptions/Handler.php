@@ -36,22 +36,23 @@ class Handler extends ExceptionHandler
     /**
      * カスタムエラーレスポンスを返す
      */
-    public function render($request, Throwable $exception): JsonResponse
+    public function render($request, Throwable $exception)
     {
-        // APIリクエストかどうかを判定
+        // APIリクエストの場合
         if ($request->expectsJson()) {
             Log::error("APIエラー: " . $exception->getMessage(), [
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
                 'exception' => $exception,
             ]);
-
+    
             return response()->json([
-                'error' => 'サーバーエラーが発生しました。',
+                'error'   => 'サーバーエラーが発生しました。',
                 'message' => $exception->getMessage(),
             ], 500);
         }
-
+    
+        // APIリクエストでない場合は、親クラスの render() をそのまま返す
         return parent::render($request, $exception);
-    }
+    }    
 }
