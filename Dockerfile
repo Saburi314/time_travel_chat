@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     libpq-dev \
+    vim \
     && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl
 
 # Composerをインストール
@@ -21,9 +22,6 @@ COPY ./000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # 必要な Apache モジュールを有効化
 RUN a2enmod rewrite
-
-# Apache を再起動
-RUN service apache2 restart
 
 # 作業ディレクトリを設定
 WORKDIR /var/www/html
