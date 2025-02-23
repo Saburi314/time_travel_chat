@@ -1,2 +1,2 @@
-# ronpai
-laravelで構築したAIと議論ができるアプリ
+歴史上の偉人たちと話ができるアプリ
+chat gpt api 学習用

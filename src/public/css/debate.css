@@ -161,27 +161,6 @@ p {
     100% { transform: rotate(360deg); }
 }
 
-/* 🔹 スマホ向け調整 */
-@media (max-width: 768px) {
-    .chat-form {
-        padding: 8px;
-    }
-
-    #user-input {
-        font-size: 14px;
-    }
-
-    .button-container {
-        flex-direction: column;
-    }
-
-    .btn-success,
-    .btn-danger {
-        width: 100%;
-        margin: 5px 0;
-    }
-}
-
 .text-success {
     margin-bottom: 15px;
 }
@@ -213,16 +192,4 @@ p {
 
 .card-body {
     text-align: center;
-}
-
-/* スマホ向け調整 */
-@media (max-width: 768px) {
-    .card {
-        width: 48%; /* スマホ版でカードをさらに小さくして複数表示 */
-        margin: 1%; /* カード間の余白を調整 */
-    }
-
-    .card-img-top {
-        height: 120px; /* 画像の高さを調整 */
-    }
 }
